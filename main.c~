@@ -6,7 +6,7 @@
 /*   By: jkertgat <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/12/12 20:00:43 by jkertgat          #+#    #+#             */
-/*   Updated: 2018/12/16 19:55:00 by jkertgat         ###   ########.fr       */
+/*   Updated: 2018/12/16 14:58:35 by jkertgat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "ft_ls.h"
@@ -33,7 +33,7 @@ void bubblesort(t_file *head)
    
         while (ptr1->next != lptr) 
         { 
-            if (ft_strcmp(head->path,head->next->path)> 0) 
+            if (ft_strcmp(head->path,head->next->path)) 
             {  
                 swap(ptr1); 
                 swapped = 1; 
@@ -44,37 +44,33 @@ void bubblesort(t_file *head)
     } 
 } 
 
-t_file *lst_swap(t_file *p1, t_file *p2)
+void sortlist(t_file **head)
 {
-	p1->next = p2->next;
-	p2->next = p1;
-	return (p2);
-}
-
-t_file *lst_sort_ascii(t_file *head)
-{
-
-	if (!head)
-		return (NULL);
-	if (head->next && ft_strcmp(head->path, head->next->path) > 0)
-		head = lst_swap(head, head->next);
-	head->next = lst_sort_ascii(head->next);
-	if (head->next && ft_strcmp(head->path, head->next->path) > 0)
+	char *tmp;
+	int i;
+	i = 0;
+	while(*head)
 	{
-		head = lst_swap(head, head->next);
-		head->next = lst_sort_ascii(head->next);
+		if((*head)->next)
+		{
+			if(strcmp((*head)->path,(*head)->next->path) < 0)
+			{
+				printf("%s\n%s",(*head)->path, (*head)->next->path);
+				tmp = (*head)->path;
+				(*head)->path = (*head)->next->path;
+				(*head)->next->path = tmp;
+			}
+		}
+		(*head) = (*head)->next;
 	}
-	return (head);
 }
-
-
 
 void		print_l(t_file *head,t_flags *flags)
 {
 	struct passwd *s_pw;
 	struct group *s_gr;
 
-	lst_sort_ascii(head);
+	bubblesort(head);
 while(head)
 	{
 		if (head->path)
@@ -98,25 +94,6 @@ while(head)
 			printf(" %s",head->path);
 			printf("\n");
 			}
-		}
-		if(flags->a == 1)
-		{
-			s_gr = getgrgid(head->s.st_gid);
-			s_pw = getpwuid(head->s.st_uid);
-			printf( (S_ISDIR(head->s.st_mode)) ? "d" : "-");
-			printf( (head->s.st_mode & S_IRUSR) ? "r" : "-");
-			printf( (head->s.st_mode & S_IWUSR) ? "w" : "-");
-			printf( (head->s.st_mode & S_IXUSR) ? "x" : "-");
-			printf( (head->s.st_mode & S_IRGRP) ? "r" : "-");
-			printf( (head->s.st_mode & S_IWGRP) ? "w" : "-");
-			printf( (head->s.st_mode & S_IXGRP) ? "x" : "-");
-			printf( (head->s.st_mode & S_IROTH) ? "r" : "-");
-			printf( (head->s.st_mode & S_IWOTH) ? "w" : "-");
-			printf( (head->s.st_mode & S_IXOTH) ? "x" : "-");
-			printf("  %2hu %s  %s",head->s.st_nlink,s_pw->pw_name,s_gr->gr_name);
-			printf("  %7lld  %.6s %.5s",head->s.st_size,ctime(&head->s.st_mtime) + 4,ctime(&head->s.st_mtime) + 11);
-			printf(" %s",head->path);
-			printf("\n");
 		}
 		head = head->next;
 	}
